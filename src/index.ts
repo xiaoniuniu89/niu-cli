@@ -1,17 +1,21 @@
 #!/usr/bin/env node
 
 import chalk from 'chalk';
+import { run } from 'jscodeshift/src/Runner';
+import path from 'path'
 import { createViteApp } from './commands/createViteApp';
 import { createVitePlasmicApp } from './commands/createVitePlasmicApp';
 import {plasmicSync} from './commands/plasmicSync'
 import { promptForProjectName } from './utils/promptForProjectName';
+import { runRemoveDefaults } from './commands/runCodemods';
 
 const args = process.argv.slice(2);
 const templateCwd = args[0];
 const command = args[1];
-let projectNameArg = args[1];
+let projectNameArg = args[2];
 const dirArg = args.find(arg => arg.startsWith('dir='));
 const projectDir = dirArg ? dirArg.split('=')[1] : '/home/niu/Stash';
+console.log(command)
 
 // Check if vanilla=true is specified
 let isVanilla = false;
@@ -44,6 +48,10 @@ switch (command) {
     case 'sync':
       await plasmicSync(templateCwd);
       break;
+      case 'eject':
+        runRemoveDefaults(templateCwd)
+      break;
+      
   default:
     console.log(chalk.red('Unknown command'));
     console.log('Usage:');

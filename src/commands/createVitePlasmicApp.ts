@@ -3,6 +3,7 @@
 import chalk from 'chalk';
 import { executeCommand } from '../utils/executeCommand';
 import {promptForProjectId} from '../utils/promptForPlasmicId'
+import {runRemoveDefaults} from '../commands/runCodemods'
 import fs from 'fs';
 import path from 'path';
 
@@ -20,10 +21,11 @@ export async function createVitePlasmicApp(projectName: string, projectDir: stri
   }
 
   try {
+    const viteProjectName = projectName.toLowerCase();
     // Initialize a new Vite project in the project directory with react-swc-ts template
-    await executeCommand('npm', ['init', 'vite@latest', '.', '--', '--template', 'react-swc-ts', '--name', projectName], projectPath);
+    await executeCommand('npm', ['init', 'vite@latest', '.', '--', '--template', 'react-swc-ts', '--name', viteProjectName], projectPath);
 
-    console.log(chalk.green('Vite project initialized successfully with react-swc-ts template.'));
+    console.log(chalk.green('Vite project with plasmic initialized successfully with react-swc-ts template.'));
     console.log(chalk.green('Installing dependencies'));
 
     // Install additional dependencies including @plasmicapp/loader, @plasmicapp/cli, and react-router-dom
@@ -63,6 +65,10 @@ export async function createVitePlasmicApp(projectName: string, projectDir: stri
     }
     fs.writeFileSync(gitignoreFilePath, gitignoreContent);
     console.log(chalk.green('.gitignore updated to include .env and node_modules.'));
+
+    // remove defaults
+    console.log(chalk.green('removing vite placeholder content'));
+    await runRemoveDefaults(projectPath);
 
     // sync with plasmic 
     const plasmicProjectId = await promptForProjectId();
