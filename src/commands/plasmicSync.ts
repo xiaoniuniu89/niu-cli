@@ -2,29 +2,28 @@ import chalk from 'chalk';
 import path from 'path';
 import fs from 'fs';
 import { executeCommand } from '../utils/executeCommand';
-import { promptForProjectId } from '../utils/promptForPlasmicId';
 
 export async function plasmicSync(projectPath: string) {
-  const projectName = path.basename(projectPath);
+  try {
+    const projectName = path.basename(projectPath);
 
-  console.log(`Project path: ${projectPath}`);
-  console.log(`Project name: ${projectName}`);
+    // Check if the current directory contains the 'plasmic.json' file
+    const plasmicJsonPath = path.join(projectPath, 'plasmic.json');
 
-  // Check if the current directory contains the 'plasmic.json' file
-  const plasmicJsonPath = path.join(projectPath, 'plasmic.json');
+    if (!fs.existsSync(plasmicJsonPath)) {
+      console.log(chalk.red('Error: plasmic.json not found in the current directory.'));
+      console.log(chalk.yellow('Cannot sync without a valid plasmic.json file.'));
+      process.exit(1);
+    }
+    console.log(chalk.green(`Found plasmic.json for ${projectName}.`));
 
-  let projectId: string;
+    await executeCommand('plasmic', ['sync'], projectPath);
 
-  if (fs.existsSync(plasmicJsonPath)) {
-    const plasmicJson = JSON.parse(fs.readFileSync(plasmicJsonPath, 'utf8'));
-    projectId = plasmicJson.projects[0]?.projectId;
+    console.log(chalk.green(`Plasmic project ${projectName} synced successfully.`));
+  } catch (error) {
+    console.error(chalk.red(`Error syncing Plasmic project: ${(error as Error).message}`));
   }
-
-  else if (!fs.existsSync(plasmicJsonPath)) {
-    projectId = await promptForProjectId();
+  finally {
+    process.exit(1);
   }
-
-  await executeCommand('plasmic', ['sync'], projectPath);
-
-  console.log(chalk.green(`Plasmic project ${projectName} synced successfully.`));
 }

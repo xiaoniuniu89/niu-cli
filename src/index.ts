@@ -7,7 +7,8 @@ import {plasmicSync} from './commands/plasmicSync'
 import { promptForProjectName } from './utils/promptForProjectName';
 
 const args = process.argv.slice(2);
-const command = args[0];
+const templateCwd = args[0];
+const command = args[1];
 let projectNameArg = args[1];
 const dirArg = args.find(arg => arg.startsWith('dir='));
 const projectDir = dirArg ? dirArg.split('=')[1] : '/home/niu/Stash';
@@ -37,8 +38,11 @@ switch (command) {
       createVitePlasmicApp(projectNameArg, projectDir);
     }
     break;
+    case 'test':
+      console.log(templateCwd)
+      break
     case 'sync':
-      await plasmicSync();
+      await plasmicSync(templateCwd);
       break;
   default:
     console.log(chalk.red('Unknown command'));
