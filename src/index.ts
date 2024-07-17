@@ -3,6 +3,7 @@
 import chalk from 'chalk';
 import { createViteApp } from './commands/createViteApp';
 import { createVitePlasmicApp } from './commands/createVitePlasmicApp';
+import {plasmicSync} from './commands/plasmicSync'
 import { promptForProjectName } from './utils/promptForProjectName';
 
 const args = process.argv.slice(2);
@@ -36,6 +37,9 @@ switch (command) {
       createVitePlasmicApp(projectNameArg, projectDir);
     }
     break;
+    case 'sync':
+      await plasmicSync();
+      break;
   default:
     console.log(chalk.red('Unknown command'));
     console.log('Usage:');
