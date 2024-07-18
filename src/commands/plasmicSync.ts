@@ -18,7 +18,7 @@ export async function plasmicSync(projectPath: string) {
     }
     console.log(chalk.green(`Found plasmic.json for ${projectName}.`));
 
-    await executeCommand('plasmic', ['sync'], projectPath);
+    await executeCommand('plasmic', ['sync', '--yes'], projectPath);
 
     await addRoutesFromPlasmic(projectPath)
 

@@ -120,7 +120,7 @@ export async function createVitePlasmicApp(projectName: string, projectDir: stri
 
     await addRoutesFromPlasmic(projectPath);
 
-    await executeCommand('npx', ['prettier', '--write'], projectPath)
+    await executeCommand('npx', ['prettier', '.', '--write'], projectPath)
 
     console.log(chalk.green(`Setup complete`));
 
