@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 
 import chalk from 'chalk';
-import { run } from 'jscodeshift/src/Runner';
-import path from 'path'
 import { createViteApp } from './commands/createViteApp';
 import { createVitePlasmicApp } from './commands/createVitePlasmicApp';
 import {plasmicSync} from './commands/plasmicSync'
