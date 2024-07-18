@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import path from 'path';
 import fs from 'fs';
 import { executeCommand } from '../utils/executeCommand';
+import { addRoutesFromPlasmic } from './runCodemods';
 
 export async function plasmicSync(projectPath: string) {
   try {
@@ -18,6 +19,10 @@ export async function plasmicSync(projectPath: string) {
     console.log(chalk.green(`Found plasmic.json for ${projectName}.`));
 
     await executeCommand('plasmic', ['sync'], projectPath);
+
+    await addRoutesFromPlasmic(projectPath)
+
+    await executeCommand('npx', ['prettier', '.', '--write'], projectPath)
 
     console.log(chalk.green(`Plasmic project ${projectName} synced successfully.`));
   } catch (error) {

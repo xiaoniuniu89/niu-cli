@@ -2,8 +2,8 @@
 
 import chalk from 'chalk';
 import { executeCommand } from '../utils/executeCommand';
-import {promptForProjectId} from '../utils/promptForPlasmicId'
-import {runRemoveDefaults} from '../commands/runCodemods'
+import { promptForProjectId } from '../utils/promptForPlasmicId';
+import { runReplaceDefaults, addRoutesFromPlasmic } from '../commands/runCodemods';
 import fs from 'fs';
 import path from 'path';
 
@@ -31,11 +31,51 @@ export async function createVitePlasmicApp(projectName: string, projectDir: stri
     // Install additional dependencies including @plasmicapp/loader, @plasmicapp/cli, and react-router-dom
     const dependencies = ['@plasmicapp/loader', 'react-router-dom'];
     await executeCommand('npm', ['install', ...dependencies], projectPath);
-    console.log(chalk.green('Installing @plasmicapp/react-web'));
 
+    console.log(chalk.green('Installing @plasmicapp/react-web'));
     await executeCommand('npm', ['install', '--ignore-scripts', '@plasmicapp/react-web'], projectPath);
 
     console.log(chalk.green('Dependencies installed successfully.'));
+
+    // Install dev dependencies for Prettier and ESLint integration
+    console.log(chalk.green('Installing dev dependencies'));
+    const devDependencies = ['prettier', 'eslint-config-prettier'];
+    await executeCommand('npm', ['install', '--save-dev', ...devDependencies], projectPath);
+
+    // Create .prettierrc file with contents {}
+    const prettierrcPath = path.join(projectPath, '.prettierrc');
+    fs.writeFileSync(prettierrcPath, '{}');
+    console.log(chalk.green('.prettierrc file created.'));
+
+    // Create .prettierignore file and add src/components/plasmic to it
+    const prettierignorePath = path.join(projectPath, '.prettierignore');
+    const prettierignoreContent = 'src/components/plasmic';
+    fs.writeFileSync(prettierignorePath, prettierignoreContent);
+    console.log(chalk.green('.prettierignore file created.'));
+
+    // Update ESLint configuration to extend Prettier
+    const eslintrcPath = path.join(projectPath, '.eslintrc.cjs');
+    const eslintrcContent = `module.exports = {
+  root: true,
+  env: { browser: true, es2020: true },
+  extends: [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react-hooks/recommended",
+    "prettier"
+  ],
+  ignorePatterns: ["dist", ".eslintrc.cjs"],
+  parser: "@typescript-eslint/parser",
+  plugins: ["react-refresh"],
+  rules: {
+    "react-refresh/only-export-components": [
+      "warn",
+      { allowConstantExport: true },
+    ],
+  },
+};`;
+    fs.writeFileSync(eslintrcPath, eslintrcContent);
+    console.log(chalk.green('.eslintrc.cjs updated to extend Prettier.'));
 
     // Update package.json scripts to include 'plasmic' script
     const packageJsonPath = path.join(projectPath, 'package.json');
@@ -66,20 +106,27 @@ export async function createVitePlasmicApp(projectName: string, projectDir: stri
     fs.writeFileSync(gitignoreFilePath, gitignoreContent);
     console.log(chalk.green('.gitignore updated to include .env and node_modules.'));
 
-    // remove defaults
-    console.log(chalk.green('removing vite placeholder content'));
-    await runRemoveDefaults(projectPath);
+    // Remove defaults
+    console.log(chalk.green('Removing Vite placeholder content'));
+    await runReplaceDefaults(projectPath);
 
-    // sync with plasmic 
+    // Sync with Plasmic
     const plasmicProjectId = await promptForProjectId();
-
     await executeCommand('plasmic', ['sync', '-p', plasmicProjectId, '--yes'], projectPath);
 
     console.log(chalk.green(`Plasmic project ${projectName} synced successfully.`));
-    
+
+    console.log(chalk.green(`Updating imports and formatting code`));
+
+    await addRoutesFromPlasmic(projectPath);
+
+    await executeCommand('npx', ['prettier', '--write'], projectPath)
+
+    console.log(chalk.green(`Setup complete`));
+
+
   } catch (error) {
     console.error(chalk.red(`Error: ${(error as Error).message}`));
     process.exit(1);
   }
 }
-  

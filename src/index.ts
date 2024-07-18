@@ -5,7 +5,7 @@ import { createViteApp } from './commands/createViteApp';
 import { createVitePlasmicApp } from './commands/createVitePlasmicApp';
 import {plasmicSync} from './commands/plasmicSync'
 import { promptForProjectName } from './utils/promptForProjectName';
-import { runRemoveDefaults } from './commands/runCodemods';
+import { runReplaceDefaults } from './commands/runCodemods';
 
 const args = process.argv.slice(2);
 const templateCwd = args[0];
@@ -47,7 +47,7 @@ switch (command) {
       await plasmicSync(templateCwd);
       break;
       case 'eject':
-        runRemoveDefaults(templateCwd)
+        runReplaceDefaults(templateCwd)
       break;
       
   default:
