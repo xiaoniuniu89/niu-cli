@@ -50,7 +50,8 @@ export async function addRoutesFromPlasmic(templateCwd: string) {
       if (component.componentType === 'page') {
         pagesComponents.push({
           name: component.name,
-          path: `./components/${component.name}.tsx`
+          path: `./components/${component.name}.tsx`,
+          url: component.path
         });
       }
     });

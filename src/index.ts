@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import { createViteApp } from './commands/createViteApp';
 import { createVitePlasmicApp } from './commands/createVitePlasmicApp';
 import {plasmicSync} from './commands/plasmicSync'
+import {plasmicFixImports} from './commands/plasmicFixImports'
 import { promptForProjectName } from './utils/promptForProjectName';
 import { runReplaceDefaults } from './commands/runCodemods';
 
@@ -46,8 +47,10 @@ switch (command) {
     case 'sync':
       await plasmicSync(templateCwd);
       break;
-      case 'eject':
-        runReplaceDefaults(templateCwd)
+    case 'fix-imports':
+      await plasmicFixImports(templateCwd);
+    case 'eject':
+      runReplaceDefaults(templateCwd)
       break;
       
   default:

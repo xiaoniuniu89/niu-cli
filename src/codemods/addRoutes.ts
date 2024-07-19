@@ -36,7 +36,7 @@ export default function transformer(file, api, options) {
                     const routesElement = j(routerPath).find(j.JSXElement, { openingElement: { name: { name: 'Routes' } } }).get();
 
                     pagesComponents.forEach(component => {
-                        const routePath = `/${component.name.toLowerCase()}`;
+                        const routePath = component.url;
                         if (!existingRoutes.has(routePath)) {
                             const newRoute = j.jsxElement(
                                 j.jsxOpeningElement(j.jsxIdentifier('Route'), [

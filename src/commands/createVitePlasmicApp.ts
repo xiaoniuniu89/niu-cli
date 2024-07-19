@@ -10,6 +10,7 @@ import path from 'path';
 export async function createVitePlasmicApp(projectName: string, projectDir: string) {
   const projectPath = path.join(projectDir, projectName);
 
+
   console.log(chalk.green(`Creating project ${projectName} at ${projectPath}...`));
 
   // Create the project directory if it doesn't exist
@@ -21,7 +22,11 @@ export async function createVitePlasmicApp(projectName: string, projectDir: stri
   }
 
   try {
+    const plasmicProjectId = await promptForProjectId();
+
     const viteProjectName = projectName.toLowerCase();
+    console.log(chalk.green('Scaffolding project with vite dependencies'));
+
     // Initialize a new Vite project in the project directory with react-swc-ts template
     await executeCommand('npm', ['init', 'vite@latest', '.', '--', '--template', 'react-swc-ts', '--name', viteProjectName], projectPath);
 
@@ -111,7 +116,6 @@ export async function createVitePlasmicApp(projectName: string, projectDir: stri
     await runReplaceDefaults(projectPath);
 
     // Sync with Plasmic
-    const plasmicProjectId = await promptForProjectId();
     await executeCommand('plasmic', ['sync', '-p', plasmicProjectId, '--yes'], projectPath);
 
     console.log(chalk.green(`Plasmic project ${projectName} synced successfully.`));
