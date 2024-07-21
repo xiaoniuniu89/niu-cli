@@ -5,6 +5,7 @@ import { createViteApp } from './commands/createViteApp';
 import { createVitePlasmicApp } from './commands/createVitePlasmicApp';
 import {plasmicSync} from './commands/plasmicSync'
 import {plasmicInit} from './commands/plasmicInit'
+import {serveCreateReactAppBuild} from './commands/serveCreateReactAppBuild'
 import {plasmicFixImports} from './commands/plasmicFixImports'
 import { promptForProjectName } from './utils/promptForProjectName';
 import { runReplaceDefaults } from './commands/runCodemods';
@@ -56,7 +57,9 @@ switch (command) {
     case 'eject':
       runReplaceDefaults(templateCwd)
       break;
-      
+    case 'serve-cra-build':
+      await serveCreateReactAppBuild(templateCwd);
+      break;
   default:
     console.log(chalk.red('Unknown command'));
     console.log('Usage:');
