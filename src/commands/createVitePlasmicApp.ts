@@ -54,7 +54,7 @@ export async function createVitePlasmicApp(projectName: string, projectDir: stri
 
     // Create .prettierignore file and add src/components/plasmic to it
     const prettierignorePath = path.join(projectPath, '.prettierignore');
-    const prettierignoreContent = 'src/components/plasmic';
+    const prettierignoreContent = 'src/generated';
     fs.writeFileSync(prettierignorePath, prettierignoreContent);
     console.log(chalk.green('.prettierignore file created.'));
 
@@ -116,6 +116,9 @@ export async function createVitePlasmicApp(projectName: string, projectDir: stri
     await runReplaceDefaults(projectPath);
 
     // Sync with Plasmic
+    await executeCommand('plasmic', ['init', '--src-dir', 'src/generated','--yes'], projectPath);
+    console.log(chalk.green(`Plasmic project ${projectName} initialised successfully.`));
+
     await executeCommand('plasmic', ['sync', '-p', plasmicProjectId, '--yes'], projectPath);
 
     console.log(chalk.green(`Plasmic project ${projectName} synced successfully.`));

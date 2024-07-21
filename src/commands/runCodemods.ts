@@ -2,6 +2,23 @@ import { run } from 'jscodeshift/src/Runner';
 import path from 'path';
 import fs from 'fs-extra';
 
+interface component {
+  name?: string,
+  path?: string,
+  url?: string,
+  componentType?: string
+}
+
+interface project {
+  components: component[]
+}
+
+interface plasmicJsonContents {
+  srcDir: string,
+  projects: project[]
+  
+}
+
 export async function runReplaceDefaults(templateCwd: string) {
   const filesToTransform = [
     path.resolve(templateCwd, 'src/App.tsx'),
@@ -36,14 +53,14 @@ export async function addRoutesFromPlasmic(templateCwd: string) {
   let plasmicData;
 
   try {
-    plasmicData = await fs.readJson(plasmicJsonPath);
+    plasmicData = await fs.readJson(plasmicJsonPath) as plasmicJsonContents;
   } catch (error) {
     console.error('Error reading plasmic.json:', error);
     return;
   }
 
   const srcDir = plasmicData.srcDir;
-  const pagesComponents = [];
+  const pagesComponents: component[] = [];
 
   plasmicData.projects.forEach(project => {
     project.components.forEach(component => {

@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { executeCommand } from '../utils/executeCommand';
 import { addRoutesFromPlasmic } from './runCodemods';
+import { promptForProjectId } from '../utils/promptForPlasmicId'
 
 export async function plasmicSync(projectPath: string) {
   try {
@@ -18,17 +19,27 @@ export async function plasmicSync(projectPath: string) {
     }
     console.log(chalk.green(`Found plasmic.json for ${projectName}.`));
 
-    await executeCommand('plasmic', ['sync', '--yes'], projectPath);
+    const plasmicConfig = JSON.parse(fs.readFileSync(plasmicJsonPath, 'utf-8'));
+    let projectId = plasmicConfig.projectId;
 
-    await addRoutesFromPlasmic(projectPath)
-
-    await executeCommand('npx', ['prettier', '.', '--write'], projectPath)
+    if (!projectId) {
+      projectId = await promptForProjectId();
+      await executeCommand('plasmic', ['sync', '-p', projectId, '--yes'], projectPath);
+    } else {
+      await executeCommand('plasmic', ['sync', '--yes'], projectPath);
+    }
 
     console.log(chalk.green(`Plasmic project ${projectName} synced successfully.`));
+
+    console.log(chalk.green(`Updating imports and formatting code`));
+
+    await addRoutesFromPlasmic(projectPath);
+
+    await executeCommand('npx', ['prettier', '.', '--write'], projectPath);
+
   } catch (error) {
     console.error(chalk.red(`Error syncing Plasmic project: ${(error as Error).message}`));
-  }
-  finally {
+  } finally {
     process.exit(1);
   }
 }
