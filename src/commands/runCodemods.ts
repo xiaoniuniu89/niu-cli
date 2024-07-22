@@ -2,21 +2,20 @@ import { run } from 'jscodeshift/src/Runner';
 import path from 'path';
 import fs from 'fs-extra';
 
-interface component {
-  name?: string,
-  path?: string,
-  url?: string,
-  componentType?: string
+interface Component {
+  name?: string;
+  path?: string;
+  url?: string;
+  componentType?: string;
 }
 
-interface project {
-  components: component[]
+interface Project {
+  components: Component[];
 }
 
-interface plasmicJsonContents {
-  srcDir: string,
-  projects: project[]
-  
+interface PlasmicJsonContents {
+  srcDir: string;
+  projects: Project[];
 }
 
 export async function runReplaceDefaults(templateCwd: string) {
@@ -48,31 +47,49 @@ export async function runReplaceDefaults(templateCwd: string) {
   }
 }
 
-export async function addRoutesFromPlasmic(templateCwd: string) {
+export async function setupComponentFoldersAndRoutes(templateCwd: string) {
   const plasmicJsonPath = path.resolve(templateCwd, 'plasmic.json');
-  let plasmicData;
+  let plasmicData: PlasmicJsonContents;
 
   try {
-    plasmicData = await fs.readJson(plasmicJsonPath) as plasmicJsonContents;
+    plasmicData = await fs.readJson(plasmicJsonPath);
   } catch (error) {
     console.error('Error reading plasmic.json:', error);
     return;
   }
 
   const srcDir = plasmicData.srcDir;
-  const pagesComponents: component[] = [];
+  const pagesComponents: Component[] = [];
 
-  plasmicData.projects.forEach(project => {
-    project.components.forEach(component => {
+  for (const project of plasmicData.projects) {
+    for (const component of project.components) {
+      const srcDirConcat = path.resolve(templateCwd, srcDir);
+      const componentFile = path.resolve(srcDirConcat, `${component.name}.tsx`);
+      const componentDirPath = path.resolve(srcDirConcat, component.name as string);
+
+      if (!await fs.pathExists(path.resolve(srcDirConcat, component.name as string))) {
+        await fs.ensureDir(componentDirPath);
+        const newComponentFile = path.resolve(componentDirPath, `${component.name}.tsx`);
+        const indexFile = path.resolve(componentDirPath, 'index.ts');
+
+        if (await fs.pathExists(componentFile)) {
+          await fs.move(componentFile, newComponentFile);
+        }
+
+        await fs.writeFile(indexFile, `export { default } from './${component.name}';`);
+
+        await runUpdateImportPathsCodemod(newComponentFile);
+      }
+
       if (component.componentType === 'page') {
         pagesComponents.push({
           name: component.name,
-          path: `./components/${component.name}.tsx`,
+          path: `./components/${component.name}`,
           url: component.path
         });
       }
-    });
-  });
+    }
+  }
 
   if (pagesComponents.length === 0) {
     console.log('No page components found in plasmic.json.');
@@ -88,5 +105,13 @@ export async function addRoutesFromPlasmic(templateCwd: string) {
   await run('/home/niu/Stash/niu-cli/src/codemods/addRoutes.ts', [appTsxPath], { ...jscodeshiftOptions, pagesComponents });
 }
 
-// Example usage
-// await addRoutesFromPlasmic('/path/to/your/templateCwd');
+
+export async function runUpdateImportPathsCodemod(file: string) {
+  
+  const jscodeshiftOptions = {
+    parser: 'tsx',
+    dry: false,
+  };
+
+  await run('/home/niu/Stash/niu-cli/src/codemods/updatePlasmicImportPath.ts', [file], jscodeshiftOptions);
+}

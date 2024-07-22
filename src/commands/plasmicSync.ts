@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import path from 'path';
 import fs from 'fs';
 import { executeCommand } from '../utils/executeCommand';
-import { addRoutesFromPlasmic } from './runCodemods';
+import { setupComponentFoldersAndRoutes } from './runCodemods';
 import { promptForProjectId } from '../utils/promptForPlasmicId'
 
 export async function plasmicSync(projectPath: string) {
@@ -20,7 +20,7 @@ export async function plasmicSync(projectPath: string) {
     console.log(chalk.green(`Found plasmic.json for ${projectName}.`));
 
     const plasmicConfig = JSON.parse(fs.readFileSync(plasmicJsonPath, 'utf-8'));
-    let projectId = plasmicConfig.projectId;
+    let projectId = plasmicConfig.projects[0].projectId;
 
     if (!projectId) {
       projectId = await promptForProjectId();
@@ -31,9 +31,9 @@ export async function plasmicSync(projectPath: string) {
 
     console.log(chalk.green(`Plasmic project ${projectName} synced successfully.`));
 
-    console.log(chalk.green(`Updating imports and formatting code`));
+    console.log(chalk.green(`Updating imports, creating folder structure and formatting code`));
 
-    await addRoutesFromPlasmic(projectPath);
+    await setupComponentFoldersAndRoutes(projectPath);
 
     await executeCommand('npx', ['prettier', '.', '--write'], projectPath);
 

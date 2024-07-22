@@ -3,7 +3,7 @@
 import chalk from 'chalk';
 import { executeCommand } from '../utils/executeCommand';
 import { promptForProjectId } from '../utils/promptForPlasmicId';
-import { runReplaceDefaults, addRoutesFromPlasmic } from '../commands/runCodemods';
+import { runReplaceDefaults, setupComponentFoldersAndRoutes } from '../commands/runCodemods';
 import fs from 'fs';
 import path from 'path';
 
@@ -34,11 +34,11 @@ export async function createVitePlasmicApp(projectName: string, projectDir: stri
     console.log(chalk.green('Installing dependencies'));
 
     // Install additional dependencies including @plasmicapp/loader, @plasmicapp/cli, and react-router-dom
-    const dependencies = ['@plasmicapp/loader', 'react-router-dom'];
-    await executeCommand('npm', ['install', ...dependencies], projectPath);
+    const dependencies = ['@plasmicapp/loader', 'react-router-dom', '@plasmicapp/react-web'];
+    await executeCommand('npm', ['install'], projectPath);
 
-    console.log(chalk.green('Installing @plasmicapp/react-web'));
-    await executeCommand('npm', ['install', '--ignore-scripts', '@plasmicapp/react-web'], projectPath);
+    console.log(chalk.green('Installing @plasmicapp dependencies'));
+    await executeCommand('npm', ['install', ...dependencies, '--ignore-scripts'], projectPath);
 
     console.log(chalk.green('Dependencies installed successfully.'));
 
@@ -116,21 +116,20 @@ export async function createVitePlasmicApp(projectName: string, projectDir: stri
     await runReplaceDefaults(projectPath);
 
     // Sync with Plasmic
-    await executeCommand('plasmic', ['init', '--src-dir', 'src/generated','--yes'], projectPath);
+    await executeCommand('plasmic', ['init', '--src-dir', 'src/components', '--plasmic-dir', '../generated', '--yes'], projectPath);
     console.log(chalk.green(`Plasmic project ${projectName} initialised successfully.`));
 
     await executeCommand('plasmic', ['sync', '-p', plasmicProjectId, '--yes'], projectPath);
 
     console.log(chalk.green(`Plasmic project ${projectName} synced successfully.`));
 
-    console.log(chalk.green(`Updating imports and formatting code`));
+    console.log(chalk.green(`Updating imports, creating folder structure and formatting code`));
 
-    await addRoutesFromPlasmic(projectPath);
+    await setupComponentFoldersAndRoutes(projectPath);
 
     await executeCommand('npx', ['prettier', '.', '--write'], projectPath)
 
     console.log(chalk.green(`Setup complete`));
-
 
   } catch (error) {
     console.error(chalk.red(`Error: ${(error as Error).message}`));
