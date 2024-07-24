@@ -6,9 +6,12 @@ import { promptForProjectId } from '../utils/promptForPlasmicId';
 import { runReplaceDefaults, setupComponentFoldersAndRoutes } from '../commands/runCodemods';
 import fs from 'fs';
 import path from 'path';
+import 'dotenv/config'
 
 export async function createVitePlasmicApp(projectName: string, projectDir: string) {
   const projectPath = path.join(projectDir, projectName);
+
+  const pckm = process.env.PCKM || 'npm'
 
 
   console.log(chalk.green(`Creating project ${projectName} at ${projectPath}...`));
@@ -35,17 +38,17 @@ export async function createVitePlasmicApp(projectName: string, projectDir: stri
 
     // Install additional dependencies including @plasmicapp/loader, @plasmicapp/cli, and react-router-dom
     const dependencies = ['@plasmicapp/loader', 'react-router-dom', '@plasmicapp/react-web'];
-    await executeCommand('npm', ['install'], projectPath);
+    await executeCommand(pckm , ['install'], projectPath);
 
     console.log(chalk.green('Installing @plasmicapp dependencies'));
-    await executeCommand('npm', ['install', ...dependencies, '--ignore-scripts'], projectPath);
+    await executeCommand(pckm, ['install', ...dependencies, '--ignore-scripts'], projectPath);
 
     console.log(chalk.green('Dependencies installed successfully.'));
 
     // Install dev dependencies for Prettier and ESLint integration
     console.log(chalk.green('Installing dev dependencies'));
     const devDependencies = ['prettier', 'eslint-config-prettier'];
-    await executeCommand('npm', ['install', '--save-dev', ...devDependencies], projectPath);
+    await executeCommand(pckm, ['install', '--save-dev', ...devDependencies], projectPath);
 
     // Create .prettierrc file with contents {}
     const prettierrcPath = path.join(projectPath, '.prettierrc');
