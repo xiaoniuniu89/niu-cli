@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import { createViteApp } from './commands/createViteApp';
 import { createVitePlasmicApp } from './commands/createVitePlasmicApp';
 import {plasmicSync} from './commands/plasmicSync'
+import {plasmicAuth} from './commands/plasmicAuth'
 import {plasmicInit} from './commands/plasmicInit'
 import {serveCreateReactAppBuild} from './commands/serveCreateReactAppBuild'
 import {plasmicFixImports} from './commands/plasmicFixImports'
@@ -49,6 +50,9 @@ switch (command) {
     case 'sync':
       await plasmicSync(templateCwd);
       break;
+    case 'auth':
+      await plasmicAuth();
+      break
     case 'fix-imports':
       await plasmicFixImports(templateCwd);
     case 'init':
