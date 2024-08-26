@@ -15,6 +15,10 @@ function getBackendUrl(templateCwd: string) {
     return 'http://localhost:3001';
 }
 
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 // Example usage in generateSDK function:
 export async function generateSDK(templateCwd: string) {
     const API_BASE_URL = getBackendUrl(templateCwd);
