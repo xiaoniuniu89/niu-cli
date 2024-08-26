@@ -1,6 +1,10 @@
 import { run } from 'jscodeshift/src/Runner';
 import path from 'path';
 import fs from 'fs-extra';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 interface Component {
   name?: string;
@@ -30,7 +34,8 @@ export async function runReplaceDefaults(templateCwd: string) {
     dry: false, // Set to true for a dry run without making changes
   };
 
-  await run('/home/niu/Stash/niu-cli/src/codemods/replaceDefaults.ts', filesToTransform, jscodeshiftOptions);
+  const codemodPath = path.resolve(__dirname, '../codemods/replaceDefaults.ts');
+  await run(codemodPath, filesToTransform, jscodeshiftOptions);
 
   try {
     fs.unlinkSync(path.resolve(templateCwd, 'src/App.css'));
@@ -67,7 +72,7 @@ export async function setupComponentFoldersAndRoutes(templateCwd: string) {
       const componentFile = path.resolve(srcDirConcat, `${component.name}.tsx`);
       const componentDirPath = path.resolve(srcDirConcat, component.name as string);
 
-      if (!await fs.pathExists(path.resolve(srcDirConcat, component.name as string))) {
+      if (!(await fs.pathExists(path.resolve(srcDirConcat, component.name as string)))) {
         await fs.ensureDir(componentDirPath);
         const newComponentFile = path.resolve(componentDirPath, `${component.name}.tsx`);
         const indexFile = path.resolve(componentDirPath, 'index.ts');
@@ -85,7 +90,7 @@ export async function setupComponentFoldersAndRoutes(templateCwd: string) {
         pagesComponents.push({
           name: component.name,
           path: `./components/${component.name}`,
-          url: component.path
+          url: component.path,
         });
       }
     }
@@ -102,16 +107,16 @@ export async function setupComponentFoldersAndRoutes(templateCwd: string) {
     dry: false,
   };
 
-  await run('/home/niu/Stash/niu-cli/src/codemods/addRoutes.ts', [appTsxPath], { ...jscodeshiftOptions, pagesComponents });
+  const codemodPath = path.resolve(__dirname, '../codemods/addRoutes.ts');
+  await run(codemodPath, [appTsxPath], { ...jscodeshiftOptions, pagesComponents });
 }
 
-
 export async function runUpdateImportPathsCodemod(file: string) {
-  
   const jscodeshiftOptions = {
     parser: 'tsx',
     dry: false,
   };
 
-  await run('/home/niu/Stash/niu-cli/src/codemods/updatePlasmicImportPath.ts', [file], jscodeshiftOptions);
+  const codemodPath = path.resolve(__dirname, '../codemods/updatePlasmicImportPath.ts');
+  await run(codemodPath, [file], jscodeshiftOptions);
 }
