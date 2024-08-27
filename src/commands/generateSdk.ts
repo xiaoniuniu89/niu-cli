@@ -109,4 +109,7 @@ export interface ${className} {
     } catch (error) {
         console.error('Error generating TypeScript SDK:', error);
     }
+    finally {
+        process.exit(1);
+      }
 }
