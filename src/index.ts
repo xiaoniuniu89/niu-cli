@@ -12,6 +12,7 @@ import { plasmicFixImports } from './commands/plasmicFixImports';
 import { promptForProjectName } from './utils/promptForProjectName';
 import { runReplaceDefaults } from './commands/runCodemods';
 import { generateSDK } from './commands/generateSdk';
+import { stashAndPull } from './commands/stashAndPull';
 
 dotenv.config();
 
@@ -31,6 +32,10 @@ if (projectNameArg && projectNameArg.includes('vanilla=true')) {
 }
 
 switch (command) {
+  case 'stash-and-pull':
+    case 'stash':
+    await stashAndPull(templateCwd)
+    break;
   case 'create-vite':
     if (!projectNameArg) {
       const projectName = await promptForProjectName();
@@ -80,3 +85,5 @@ switch (command) {
     console.log('  niu create-vite-vanilla [projectName] [dir=/path/to/dir]');
     process.exit(1);
 }
+
+

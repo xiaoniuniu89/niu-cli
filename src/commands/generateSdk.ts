@@ -8,6 +8,7 @@ function getBackendUrl(templateCwd: string) {
 
     if (fs.existsSync(envPath)) {
         const envConfig = dotenv.parse(fs.readFileSync(envPath));
+        console.log(envConfig)
         return envConfig.VITE_BACKEND_URL || 'http://localhost:3001';
     }
 
