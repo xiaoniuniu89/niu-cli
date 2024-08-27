@@ -11,7 +11,7 @@ import 'dotenv/config'
 export async function createVitePlasmicApp(projectName: string, projectDir: string) {
   const projectPath = path.join(projectDir, projectName);
 
-  const pckm = process.env.PCKM || 'npm'
+  const pckm = process.env.NIU_CLI_PCKM || 'npm'
 
 
   console.log(chalk.green(`Creating project ${projectName} at ${projectPath}...`));

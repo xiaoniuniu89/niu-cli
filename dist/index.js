@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
-// src/index.ts
+// src/index.js
 import chalk10 from "chalk";
 import dotenv2 from "dotenv";
 
-// src/commands/createViteApp.ts
+// src/commands/createViteApp.js
 import chalk from "chalk";
 import fs from "fs";
 import path from "path";
 
-// src/utils/executeCommand.ts
+// src/utils/executeCommand.js
 import { execa } from "execa";
 async function executeCommand(command2, args2, cwd) {
   return new Promise((resolve, reject) => {
@@ -26,10 +26,10 @@ async function executeCommand(command2, args2, cwd) {
   });
 }
 
-// src/commands/createViteApp.ts
+// src/commands/createViteApp.js
 import "dotenv/config";
 async function createViteApp(projectName, projectDir2, options = {}) {
-  const pckm = process.env.PCKM || "npm";
+  const pckm = process.env.NIU_CLI_PCKM || "npm";
   const template = options.vanilla ? "vanilla-ts" : "react-swc-ts";
   const projectPath = path.join(projectDir2, projectName);
   console.log(chalk.green(`Creating Vite project ${projectName} with template ${template}...`));
@@ -85,10 +85,10 @@ async function createViteApp(projectName, projectDir2, options = {}) {
   }
 }
 
-// src/commands/createVitePlasmicApp.ts
+// src/commands/createVitePlasmicApp.js
 import chalk2 from "chalk";
 
-// src/utils/promptForPlasmicId.ts
+// src/utils/promptForPlasmicId.js
 import readline from "readline";
 async function promptForProjectId() {
   const rl2 = readline.createInterface({
@@ -103,8 +103,8 @@ async function promptForProjectId() {
   });
 }
 
-// src/commands/runCodemods.ts
-import { run } from "jscodeshift/src/Runner";
+// src/commands/runCodemods.js
+import { run } from "jscodeshift/src/Runner.js";
 import path2 from "path";
 import fs2 from "fs-extra";
 import { fileURLToPath } from "url";
@@ -112,8 +112,8 @@ var __filename = fileURLToPath(import.meta.url);
 var __dirname = path2.dirname(__filename);
 async function runReplaceDefaults(templateCwd2) {
   const filesToTransform = [
-    path2.resolve(templateCwd2, "src/App.tsx"),
-    path2.resolve(templateCwd2, "src/main.tsx")
+    path2.resolve(templateCwd2, "src/App.jsx"),
+    path2.resolve(templateCwd2, "src/main.jsx")
     // Add more files or directories as needed
   ];
   const jscodeshiftOptions = {
@@ -122,7 +122,7 @@ async function runReplaceDefaults(templateCwd2) {
     dry: false
     // Set to true for a dry run without making changes
   };
-  const codemodPath = path2.resolve(__dirname, "../codemods/replaceDefaults.ts");
+  const codemodPath = path2.resolve(__dirname, "../codemods/replaceDefaults.js");
   await run(codemodPath, filesToTransform, jscodeshiftOptions);
   try {
     fs2.unlinkSync(path2.resolve(templateCwd2, "src/App.css"));
@@ -151,12 +151,12 @@ async function setupComponentFoldersAndRoutes(templateCwd2) {
   for (const project of plasmicData.projects) {
     for (const component of project.components) {
       const srcDirConcat = path2.resolve(templateCwd2, srcDir);
-      const componentFile = path2.resolve(srcDirConcat, `${component.name}.tsx`);
+      const componentFile = path2.resolve(srcDirConcat, `${component.name}.jsx`);
       const componentDirPath = path2.resolve(srcDirConcat, component.name);
       if (!await fs2.pathExists(path2.resolve(srcDirConcat, component.name))) {
         await fs2.ensureDir(componentDirPath);
-        const newComponentFile = path2.resolve(componentDirPath, `${component.name}.tsx`);
-        const indexFile = path2.resolve(componentDirPath, "index.ts");
+        const newComponentFile = path2.resolve(componentDirPath, `${component.name}.jsx`);
+        const indexFile = path2.resolve(componentDirPath, "index.js");
         if (await fs2.pathExists(componentFile)) {
           await fs2.move(componentFile, newComponentFile);
         }
@@ -176,12 +176,12 @@ async function setupComponentFoldersAndRoutes(templateCwd2) {
     console.log("No page components found in plasmic.json.");
     return;
   }
-  const appTsxPath = path2.resolve(templateCwd2, "src/App.tsx");
+  const appTsxPath = path2.resolve(templateCwd2, "src/App.jsx");
   const jscodeshiftOptions = {
     parser: "tsx",
     dry: false
   };
-  const codemodPath = path2.resolve(__dirname, "../codemods/addRoutes.ts");
+  const codemodPath = path2.resolve(__dirname, "../codemods/addRoutes.js");
   await run(codemodPath, [appTsxPath], { ...jscodeshiftOptions, pagesComponents });
 }
 async function runUpdateImportPathsCodemod(file) {
@@ -189,17 +189,17 @@ async function runUpdateImportPathsCodemod(file) {
     parser: "tsx",
     dry: false
   };
-  const codemodPath = path2.resolve(__dirname, "../codemods/updatePlasmicImportPath.ts");
+  const codemodPath = path2.resolve(__dirname, "../codemods/updatePlasmicImportPath.js");
   await run(codemodPath, [file], jscodeshiftOptions);
 }
 
-// src/commands/createVitePlasmicApp.ts
+// src/commands/createVitePlasmicApp.js
 import fs3 from "fs";
 import path3 from "path";
 import "dotenv/config";
 async function createVitePlasmicApp(projectName, projectDir2) {
   const projectPath = path3.join(projectDir2, projectName);
-  const pckm = process.env.PCKM || "npm";
+  const pckm = process.env.NIU_CLI_PCKM || "npm";
   console.log(chalk2.green(`Creating project ${projectName} at ${projectPath}...`));
   if (!fs3.existsSync(projectPath)) {
     fs3.mkdirSync(projectPath, { recursive: true });
@@ -295,7 +295,7 @@ PLASMICTOKEN=YOURTOKEN
   }
 }
 
-// src/commands/plasmicSync.ts
+// src/commands/plasmicSync.js
 import chalk3 from "chalk";
 import path4 from "path";
 import fs4 from "fs";
@@ -328,7 +328,7 @@ async function plasmicSync(projectPath) {
   }
 }
 
-// src/commands/plasmicAuth.ts
+// src/commands/plasmicAuth.js
 import chalk4 from "chalk";
 async function plasmicAuth() {
   try {
@@ -340,7 +340,7 @@ async function plasmicAuth() {
   }
 }
 
-// src/commands/plasmicInit.ts
+// src/commands/plasmicInit.js
 import chalk5 from "chalk";
 async function plasmicInit(projectPath) {
   try {
@@ -352,7 +352,7 @@ async function plasmicInit(projectPath) {
   }
 }
 
-// src/commands/serveCreateReactAppBuild.ts
+// src/commands/serveCreateReactAppBuild.js
 import chalk6 from "chalk";
 async function serveCreateReactAppBuild(projectPath) {
   try {
@@ -364,7 +364,7 @@ async function serveCreateReactAppBuild(projectPath) {
   }
 }
 
-// src/commands/plasmicFixImports.ts
+// src/commands/plasmicFixImports.js
 import chalk7 from "chalk";
 import path5 from "path";
 import fs5 from "fs";
@@ -386,7 +386,7 @@ async function plasmicFixImports(projectPath) {
   }
 }
 
-// src/utils/promptForProjectName.ts
+// src/utils/promptForProjectName.js
 import readline2 from "readline";
 import chalk8 from "chalk";
 var rl = readline2.createInterface({
@@ -407,7 +407,7 @@ function promptForProjectName() {
   });
 }
 
-// src/commands/generateSdk.ts
+// src/commands/generateSdk.js
 import fs6 from "fs";
 import path6 from "path";
 import dotenv from "dotenv";
@@ -437,7 +437,7 @@ async function generateSDK(templateCwd2) {
     entities.forEach((entity) => {
       const { name, endpoints } = entity;
       const className = capitalize(name);
-      const filePath = path6.join(SDK_DIR, `${className.toLowerCase()}.ts`);
+      const filePath = path6.join(SDK_DIR, `${className.toLowerCase()}.js`);
       const fileContent = `
 import axios, { AxiosResponse } from 'axios';
 
@@ -510,7 +510,7 @@ export interface ${className} {
   }
 }
 
-// src/commands/stashAndPull.ts
+// src/commands/stashAndPull.js
 import chalk9 from "chalk";
 async function stashAndPull(projectPath) {
   try {
@@ -524,15 +524,14 @@ async function stashAndPull(projectPath) {
   }
 }
 
-// src/index.ts
+// src/index.js
 dotenv2.config();
 var args = process.argv.slice(2);
-var templateCwd = args[0];
-var command = args[1];
+var templateCwd = process.cwd();
+var command = args[0];
 var projectNameArg = args[2];
 var dirArg = args.find((arg) => arg.startsWith("dir="));
-var projectDir = dirArg ? dirArg.split("=")[1] : process.env.PROJECT_DIR || "/home/niu/stash";
-console.log(command);
+var projectDir = dirArg ? dirArg.split("=")[1] : process.env.NIU_CLI_PROJECT_OUTPUT_DIR || "/home/niu/Stash";
 var isVanilla = false;
 if (projectNameArg && projectNameArg.includes("vanilla=true")) {
   isVanilla = true;
@@ -581,7 +580,7 @@ switch (command) {
   case "serve-cra-build":
     await serveCreateReactAppBuild(templateCwd);
     break;
-  case "generate-sdk":
+  case "generate:sdk":
     await generateSDK(templateCwd);
     break;
   default:

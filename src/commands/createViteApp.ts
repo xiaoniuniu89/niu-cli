@@ -5,7 +5,7 @@ import {executeCommand} from '../utils/executeCommand'
 import 'dotenv/config'
 
 export async function createViteApp(projectName: string, projectDir: string, options: { vanilla?: boolean } = {}) {
-  const pckm = process.env.PCKM || 'npm'
+  const pckm = process.env.NIU_CLI_PCKM || 'npm'
 
   const template = options.vanilla ? 'vanilla-ts' : 'react-swc-ts';
   const projectPath = path.join(projectDir, projectName);

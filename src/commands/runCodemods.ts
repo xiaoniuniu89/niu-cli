@@ -1,4 +1,4 @@
-import { run } from 'jscodeshift/src/Runner';
+import { run } from 'jscodeshift/src/Runner.js';
 import path from 'path';
 import fs from 'fs-extra';
 import { fileURLToPath } from 'url';

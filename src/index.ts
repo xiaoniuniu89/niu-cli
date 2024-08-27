@@ -17,14 +17,12 @@ import { stashAndPull } from './commands/stashAndPull';
 dotenv.config();
 
 const args = process.argv.slice(2);
-const templateCwd = args[0];
-const command = args[1];
+const templateCwd = process.cwd();
+const command = args[0];
 let projectNameArg = args[2];
 const dirArg = args.find(arg => arg.startsWith('dir='));
-const projectDir = dirArg ? dirArg.split('=')[1] : process.env.PROJECT_DIR || '/home/niu/stash';
-console.log(command);
+const projectDir = dirArg ? dirArg.split('=')[1] : process.env.NIU_CLI_PROJECT_OUTPUT_DIR || '/home/niu/Stash';
 
-// Check if vanilla=true is specified
 let isVanilla = false;
 if (projectNameArg && projectNameArg.includes('vanilla=true')) {
   isVanilla = true;
@@ -74,7 +72,7 @@ switch (command) {
   case 'serve-cra-build':
     await serveCreateReactAppBuild(templateCwd);
     break;
-  case 'generate-sdk':
+  case 'generate:sdk':
     await generateSDK(templateCwd)
     break;
   default:
