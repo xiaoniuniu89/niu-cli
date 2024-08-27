@@ -2,40 +2,31 @@ import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
 import axios from 'axios';
-
-function getBackendUrl(templateCwd: string) {
+function getBackendUrl(templateCwd) {
     const envPath = path.join(templateCwd, '.env');
-
     if (fs.existsSync(envPath)) {
         const envConfig = dotenv.parse(fs.readFileSync(envPath));
-        console.log(envConfig)
+        console.log(envConfig);
         return envConfig.VITE_BACKEND_URL || 'http://localhost:3001';
     }
-
     // Fallback to default if .env or the variable isn't present
     return 'http://localhost:3001';
 }
-
-function capitalize(str: string) {
+function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
-
 // Example usage in generateSDK function:
-export async function generateSDK(templateCwd: string) {
+export async function generateSDK(templateCwd) {
     const API_BASE_URL = getBackendUrl(templateCwd);
     const ENTITY_API_URL = `${API_BASE_URL}/sdk/entities`;
-
     const SDK_DIR = path.join(templateCwd, 'src', 'generated', 'sdk');
-
     try {
         const response = await axios.get(ENTITY_API_URL);
         const entities = response.data;
-
         // Ensure the SDK directory exists
         if (!fs.existsSync(SDK_DIR)) {
             fs.mkdirSync(SDK_DIR, { recursive: true });
         }
-
         // @ts-ignore
         entities.forEach(entity => {
             const { name, endpoints } = entity;
@@ -102,16 +93,15 @@ export interface ${className} {
  // Add other fields that are part of the ${className} entity here
 }
 `;
-
             fs.writeFileSync(filePath, fileContent);
             console.log(`Generated TypeScript SDK for entity: ${name}`);
         });
-
         console.log('TypeScript SDK generation complete.');
-    } catch (error) {
+    }
+    catch (error) {
         console.error('Error generating TypeScript SDK:', error);
     }
     finally {
         process.exit(1);
-      }
+    }
 }
