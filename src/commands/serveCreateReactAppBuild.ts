@@ -1,6 +1,4 @@
 import chalk from 'chalk';
-import path from 'path';
-import fs from 'fs';
 import { executeCommand } from '../utils/executeCommand';
 
 export async function serveCreateReactAppBuild(projectPath: string) {

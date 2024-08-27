@@ -34,6 +34,10 @@ export async function createVitePlasmicApp(projectName: string, projectDir: stri
     await executeCommand('npm', ['init', 'vite@latest', '.', '--', '--template', 'react-swc-ts', '--name', viteProjectName], projectPath);
 
     console.log(chalk.green('Vite project with plasmic initialized successfully with react-swc-ts template.'));
+    const npmrcContent = `registry=https://registry.npmjs.org/`
+    const npmrcPath = path.join(projectPath, '.npmrc');
+    fs.writeFileSync(npmrcPath, npmrcContent);
+    console.log(chalk.green('.npmrc file created.'));
     console.log(chalk.green('Installing dependencies'));
 
     // Install additional dependencies including @plasmicapp/loader, @plasmicapp/cli, and react-router-dom

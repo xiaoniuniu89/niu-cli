@@ -1,20 +1,40 @@
-export default function transformer(file, api, options) {
+import { API, FileInfo, Options } from 'jscodeshift';
+
+// Define a type for the page components
+interface PageComponent {
+    name: string;
+    path: string;
+    url: string;
+}
+
+interface TransformerOptions extends Options {
+    pagesComponents: PageComponent[];
+}
+
+export default function transformer(
+    file: FileInfo, 
+    api: API, 
+    options: TransformerOptions
+): string {
     const j = api.jscodeshift;
     const root = j(file.source);
     const pagesComponents = options.pagesComponents;
 
     // Collect existing imports and routes
-    const existingImports = new Set();
-    const existingRoutes = new Set();
+    const existingImports = new Set<string>();
+    const existingRoutes = new Set<string>();
 
     root.find(j.ImportDeclaration).forEach(path => {
-        existingImports.add(path.node.source.value);
+        existingImports.add(path.node.source.value as string);
     });
 
     root.find(j.JSXElement, { openingElement: { name: { name: 'Route' } } }).forEach(path => {
+        // @ts-ignore
         path.node.openingElement.attributes.forEach(attr => {
+        // @ts-ignore
             if (attr.name && attr.name.name === 'path') {
-                existingRoutes.add(attr.value.value);
+        // @ts-ignore
+                existingRoutes.add((attr.value as any).value); // 'attr.value' can be JSXExpression or StringLiteral
             }
         });
     });

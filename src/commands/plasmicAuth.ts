@@ -1,9 +1,5 @@
 import chalk from 'chalk';
-import path from 'path';
-import fs from 'fs';
 import { executeCommand } from '../utils/executeCommand';
-import { setupComponentFoldersAndRoutes } from './runCodemods';
-import { promptForProjectId } from '../utils/promptForPlasmicId'
 
 export async function plasmicAuth () {
   try {
