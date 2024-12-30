@@ -136,7 +136,7 @@ async function runReplaceDefaults(templateCwd2) {
     dry: false
     // Set to true for a dry run without making changes
   };
-  const codemodPath = path3.resolve(__dirname2, "../codemods/replaceDefaults.ts");
+  const codemodPath = path3.resolve(__dirname2, "../codemods/replaceDefaults.js");
   await run(codemodPath, filesToTransform, jscodeshiftOptions);
   try {
     fs2.unlinkSync(path3.resolve(templateCwd2, "src/App.css"));
@@ -170,7 +170,7 @@ async function setupComponentFoldersAndRoutes(templateCwd2) {
       if (!await fs2.pathExists(path3.resolve(srcDirConcat, component.name))) {
         await fs2.ensureDir(componentDirPath);
         const newComponentFile = path3.resolve(componentDirPath, `${component.name}.tsx`);
-        const indexFile = path3.resolve(componentDirPath, "index.ts");
+        const indexFile = path3.resolve(componentDirPath, "index.js");
         if (await fs2.pathExists(componentFile)) {
           await fs2.move(componentFile, newComponentFile);
         }
@@ -195,7 +195,7 @@ async function setupComponentFoldersAndRoutes(templateCwd2) {
     parser: "tsx",
     dry: false
   };
-  const codemodPath = path3.resolve(__dirname2, "../codemods/addRoutes.ts");
+  const codemodPath = path3.resolve(__dirname2, "../codemods/addRoutes.js");
   await run(codemodPath, [appTsxPath], { ...jscodeshiftOptions, pagesComponents });
 }
 async function runUpdateImportPathsCodemod(file) {
@@ -203,7 +203,7 @@ async function runUpdateImportPathsCodemod(file) {
     parser: "tsx",
     dry: false
   };
-  const codemodPath = path3.resolve(__dirname2, "../codemods/updatePlasmicImportPath.ts");
+  const codemodPath = path3.resolve(__dirname2, "../codemods/updatePlasmicImportPath.js");
   await run(codemodPath, [file], jscodeshiftOptions);
 }
 
