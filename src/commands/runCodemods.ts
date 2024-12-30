@@ -23,100 +23,63 @@ interface PlasmicJsonContents {
 }
 
 export async function runReplaceDefaults(templateCwd: string) {
-  const filesToTransform = [
+  const files = [
     path.resolve(templateCwd, 'src/App.tsx'),
     path.resolve(templateCwd, 'src/main.tsx')
-    // Add more files or directories as needed
   ];
-
-  const jscodeshiftOptions = {
-    parser: 'tsx', // Specify the parser, e.g., 'tsx', 'babel', 'ts', etc.
-    dry: false, // Set to true for a dry run without making changes
-  };
-
-  const codemodPath = path.resolve(__dirname, './codemods/replaceDefaults.js');
-  await run(codemodPath, filesToTransform, jscodeshiftOptions);
-
+  await run(path.join(__dirname, 'codemods', 'replaceDefaults.js'), files, { parser: 'tsx', dry: false });
   try {
     fs.unlinkSync(path.resolve(templateCwd, 'src/App.css'));
-    console.log('Deleted src/App.css');
-  } catch (error) {
-    console.error('Error deleting src/App.css:', error);
-  }
-
+  } catch {}
   try {
     fs.unlinkSync(path.resolve(templateCwd, 'src/index.css'));
-    console.log('Deleted src/index.css');
-  } catch (error) {
-    console.error('Error deleting src/index.css:', error);
-  }
+  } catch {}
 }
 
 export async function setupComponentFoldersAndRoutes(templateCwd: string) {
   const plasmicJsonPath = path.resolve(templateCwd, 'plasmic.json');
   let plasmicData: PlasmicJsonContents;
-
   try {
     plasmicData = await fs.readJson(plasmicJsonPath);
-  } catch (error) {
-    console.error('Error reading plasmic.json:', error);
+  } catch {
     return;
   }
-
-  const srcDir = plasmicData.srcDir;
-  const pagesComponents: Component[] = [];
-
+  const pages: Component[] = [];
   for (const project of plasmicData.projects) {
     for (const component of project.components) {
-      const srcDirConcat = path.resolve(templateCwd, srcDir);
-      const componentFile = path.resolve(srcDirConcat, `${component.name}.tsx`);
-      const componentDirPath = path.resolve(srcDirConcat, component.name as string);
-
-      if (!(await fs.pathExists(path.resolve(srcDirConcat, component.name as string)))) {
+      const srcDirPath = path.resolve(templateCwd, plasmicData.srcDir);
+      const componentFile = path.resolve(srcDirPath, `${component.name}.tsx`);
+      const componentDirPath = path.resolve(srcDirPath, component.name || '');
+      if (!(await fs.pathExists(componentDirPath))) {
         await fs.ensureDir(componentDirPath);
         const newComponentFile = path.resolve(componentDirPath, `${component.name}.tsx`);
-        const indexFile = path.resolve(componentDirPath, 'index.js');
-
+        const indexFile = path.resolve(componentDirPath, 'index.ts');
         if (await fs.pathExists(componentFile)) {
           await fs.move(componentFile, newComponentFile);
         }
-
         await fs.writeFile(indexFile, `export { default } from './${component.name}';`);
-
         await runUpdateImportPathsCodemod(newComponentFile);
       }
-
       if (component.componentType === 'page') {
-        pagesComponents.push({
-          name: component.name,
-          path: `./components/${component.name}`,
-          url: component.path,
-        });
+        pages.push({ name: component.name, path: `./components/${component.name}`, url: component.path });
       }
     }
   }
-
-  if (pagesComponents.length === 0) {
-    console.log('No page components found in plasmic.json.');
+  if (!pages.length) {
     return;
   }
-
   const appTsxPath = path.resolve(templateCwd, 'src/App.tsx');
-  const jscodeshiftOptions = {
-    parser: 'tsx',
-    dry: false,
-  };
-
-  const codemodPath = path.resolve(__dirname, './codemods/addRoutes.js');
-  await run(codemodPath, [appTsxPath], { ...jscodeshiftOptions, pagesComponents });
+  await run(
+    path.join(__dirname, 'codemods', 'addRoutes.js'),
+    [appTsxPath],
+    { parser: 'tsx', dry: false, pagesComponents: pages }
+  );
 }
 
 export async function runUpdateImportPathsCodemod(file: string) {
-  const jscodeshiftOptions = {
-    parser: 'tsx',
-    dry: false,
-  };
-
-  const codemodPath = path.resolve(__dirname, './codemods/updatePlasmicImportPath.js');
-  await run(codemodPath, [file], jscodeshiftOptions);
+  await run(
+    path.join(__dirname, 'codemods', 'updatePlasmicImportPath.js'),
+    [file],
+    { parser: 'tsx', dry: false }
+  );
 }
