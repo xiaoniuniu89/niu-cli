@@ -9,16 +9,28 @@ import { homedir } from "os";
 // src/commands/createViteApp.ts
 import chalk from "chalk";
 import fs from "fs";
-import path from "path";
+import path2 from "path";
 
 // src/utils/executeCommand.ts
+import path from "path";
+import { fileURLToPath } from "url";
 import { execa } from "execa";
+var __filename = fileURLToPath(import.meta.url);
+var __dirname = path.dirname(__filename);
+var cliRoot = path.join(__dirname, "..");
 async function executeCommand(command2, args2, cwd) {
   return new Promise((resolve, reject) => {
-    const childProcess = execa(command2, args2, { cwd });
+    const execaOptions = command2 === "plasmic" ? {
+      cwd,
+      preferLocal: true,
+      localDir: cliRoot
+      // <--- The important part
+    } : { cwd };
+    console.log("Running command:", command2, args2.join(" "), "with localDir:", execaOptions.localDir);
+    const childProcess = execa(command2, args2, execaOptions);
     childProcess.stdout?.pipe(process.stdout);
     childProcess.stderr?.pipe(process.stderr);
-    childProcess.on("exit", (code, signal) => {
+    childProcess.on("exit", (code) => {
       if (code === 0) {
         resolve();
       } else {
@@ -33,7 +45,7 @@ import "dotenv/config";
 async function createViteApp(projectName, projectDir2, options = {}) {
   const pckm = process.env.NIU_CLI_PCKM || "npm";
   const template = options.vanilla ? "vanilla-ts" : "react-swc-ts";
-  const projectPath = path.join(projectDir2, projectName);
+  const projectPath = path2.join(projectDir2, projectName);
   console.log(chalk.green(`Creating Vite project ${projectName} with template ${template}...`));
   try {
     if (!fs.existsSync(projectPath)) {
@@ -42,7 +54,7 @@ async function createViteApp(projectName, projectDir2, options = {}) {
     await executeCommand("npm", ["init", "vite@latest", ".", "--", "--template", template, "--name", projectName], projectPath);
     console.log(chalk.green(`Vite project initialized successfully with ${template} template.`));
     const npmrcContent = `registry=https://registry.npmjs.org/`;
-    const npmrcPath = path.join(projectPath, ".npmrc");
+    const npmrcPath = path2.join(projectPath, ".npmrc");
     fs.writeFileSync(npmrcPath, npmrcContent);
     console.log(chalk.green(".npmrc file created."));
     const initialDependencies = options.vanilla ? [] : ["react", "react-dom", "react-router-dom"];
@@ -51,14 +63,14 @@ async function createViteApp(projectName, projectDir2, options = {}) {
     console.log(chalk.green("Installing dev dependencies"));
     const devDependencies = ["prettier", "eslint-config-prettier"];
     await executeCommand(pckm, ["install", "--save-dev", ...devDependencies], projectPath);
-    const prettierrcPath = path.join(projectPath, ".prettierrc");
+    const prettierrcPath = path2.join(projectPath, ".prettierrc");
     fs.writeFileSync(prettierrcPath, "{}");
     console.log(chalk.green(".prettierrc file created."));
-    const prettierignorePath = path.join(projectPath, ".prettierignore");
+    const prettierignorePath = path2.join(projectPath, ".prettierignore");
     const prettierignoreContent = "src/generated";
     fs.writeFileSync(prettierignorePath, prettierignoreContent);
     console.log(chalk.green(".prettierignore file created."));
-    const eslintrcPath = path.join(projectPath, ".eslintrc.cjs");
+    const eslintrcPath = path2.join(projectPath, ".eslintrc.cjs");
     const eslintrcContent = `module.exports = {
     root: true,
     env: { browser: true, es2020: true },
@@ -107,15 +119,15 @@ async function promptForProjectId() {
 
 // src/commands/runCodemods.ts
 import { run } from "jscodeshift/src/Runner.js";
-import path2 from "path";
+import path3 from "path";
 import fs2 from "fs-extra";
-import { fileURLToPath } from "url";
-var __filename = fileURLToPath(import.meta.url);
-var __dirname = path2.dirname(__filename);
+import { fileURLToPath as fileURLToPath2 } from "url";
+var __filename2 = fileURLToPath2(import.meta.url);
+var __dirname2 = path3.dirname(__filename2);
 async function runReplaceDefaults(templateCwd2) {
   const filesToTransform = [
-    path2.resolve(templateCwd2, "src/App.tsx"),
-    path2.resolve(templateCwd2, "src/main.tsx")
+    path3.resolve(templateCwd2, "src/App.tsx"),
+    path3.resolve(templateCwd2, "src/main.tsx")
     // Add more files or directories as needed
   ];
   const jscodeshiftOptions = {
@@ -124,23 +136,23 @@ async function runReplaceDefaults(templateCwd2) {
     dry: false
     // Set to true for a dry run without making changes
   };
-  const codemodPath = path2.resolve(__dirname, "../codemods/replaceDefaults.ts");
+  const codemodPath = path3.resolve(__dirname2, "../codemods/replaceDefaults.ts");
   await run(codemodPath, filesToTransform, jscodeshiftOptions);
   try {
-    fs2.unlinkSync(path2.resolve(templateCwd2, "src/App.css"));
+    fs2.unlinkSync(path3.resolve(templateCwd2, "src/App.css"));
     console.log("Deleted src/App.css");
   } catch (error) {
     console.error("Error deleting src/App.css:", error);
   }
   try {
-    fs2.unlinkSync(path2.resolve(templateCwd2, "src/index.css"));
+    fs2.unlinkSync(path3.resolve(templateCwd2, "src/index.css"));
     console.log("Deleted src/index.css");
   } catch (error) {
     console.error("Error deleting src/index.css:", error);
   }
 }
 async function setupComponentFoldersAndRoutes(templateCwd2) {
-  const plasmicJsonPath = path2.resolve(templateCwd2, "plasmic.json");
+  const plasmicJsonPath = path3.resolve(templateCwd2, "plasmic.json");
   let plasmicData;
   try {
     plasmicData = await fs2.readJson(plasmicJsonPath);
@@ -152,13 +164,13 @@ async function setupComponentFoldersAndRoutes(templateCwd2) {
   const pagesComponents = [];
   for (const project of plasmicData.projects) {
     for (const component of project.components) {
-      const srcDirConcat = path2.resolve(templateCwd2, srcDir);
-      const componentFile = path2.resolve(srcDirConcat, `${component.name}.tsx`);
-      const componentDirPath = path2.resolve(srcDirConcat, component.name);
-      if (!await fs2.pathExists(path2.resolve(srcDirConcat, component.name))) {
+      const srcDirConcat = path3.resolve(templateCwd2, srcDir);
+      const componentFile = path3.resolve(srcDirConcat, `${component.name}.tsx`);
+      const componentDirPath = path3.resolve(srcDirConcat, component.name);
+      if (!await fs2.pathExists(path3.resolve(srcDirConcat, component.name))) {
         await fs2.ensureDir(componentDirPath);
-        const newComponentFile = path2.resolve(componentDirPath, `${component.name}.tsx`);
-        const indexFile = path2.resolve(componentDirPath, "index.ts");
+        const newComponentFile = path3.resolve(componentDirPath, `${component.name}.tsx`);
+        const indexFile = path3.resolve(componentDirPath, "index.ts");
         if (await fs2.pathExists(componentFile)) {
           await fs2.move(componentFile, newComponentFile);
         }
@@ -178,12 +190,12 @@ async function setupComponentFoldersAndRoutes(templateCwd2) {
     console.log("No page components found in plasmic.json.");
     return;
   }
-  const appTsxPath = path2.resolve(templateCwd2, "src/App.tsx");
+  const appTsxPath = path3.resolve(templateCwd2, "src/App.tsx");
   const jscodeshiftOptions = {
     parser: "tsx",
     dry: false
   };
-  const codemodPath = path2.resolve(__dirname, "../codemods/addRoutes.ts");
+  const codemodPath = path3.resolve(__dirname2, "../codemods/addRoutes.ts");
   await run(codemodPath, [appTsxPath], { ...jscodeshiftOptions, pagesComponents });
 }
 async function runUpdateImportPathsCodemod(file) {
@@ -191,16 +203,16 @@ async function runUpdateImportPathsCodemod(file) {
     parser: "tsx",
     dry: false
   };
-  const codemodPath = path2.resolve(__dirname, "../codemods/updatePlasmicImportPath.ts");
+  const codemodPath = path3.resolve(__dirname2, "../codemods/updatePlasmicImportPath.ts");
   await run(codemodPath, [file], jscodeshiftOptions);
 }
 
 // src/commands/createVitePlasmicApp.ts
 import fs3 from "fs";
-import path3 from "path";
+import path4 from "path";
 import "dotenv/config";
 async function createVitePlasmicApp(projectName, projectDir2) {
-  const projectPath = path3.join(projectDir2, projectName);
+  const projectPath = path4.join(projectDir2, projectName);
   const pckm = process.env.NIU_CLI_PCKM || "npm";
   console.log(chalk2.green(`Creating project ${projectName} at ${projectPath}...`));
   if (!fs3.existsSync(projectPath)) {
@@ -216,7 +228,7 @@ async function createVitePlasmicApp(projectName, projectDir2) {
     await executeCommand("npm", ["init", "vite@latest", ".", "--", "--template", "react-swc-ts", "--name", viteProjectName], projectPath);
     console.log(chalk2.green("Vite project with plasmic initialized successfully with react-swc-ts template."));
     const npmrcContent = `registry=https://registry.npmjs.org/`;
-    const npmrcPath = path3.join(projectPath, ".npmrc");
+    const npmrcPath = path4.join(projectPath, ".npmrc");
     fs3.writeFileSync(npmrcPath, npmrcContent);
     console.log(chalk2.green(".npmrc file created."));
     console.log(chalk2.green("Installing dependencies"));
@@ -228,14 +240,14 @@ async function createVitePlasmicApp(projectName, projectDir2) {
     console.log(chalk2.green("Installing dev dependencies"));
     const devDependencies = ["prettier", "eslint-config-prettier"];
     await executeCommand(pckm, ["install", "--save-dev", ...devDependencies], projectPath);
-    const prettierrcPath = path3.join(projectPath, ".prettierrc");
+    const prettierrcPath = path4.join(projectPath, ".prettierrc");
     fs3.writeFileSync(prettierrcPath, "{}");
     console.log(chalk2.green(".prettierrc file created."));
-    const prettierignorePath = path3.join(projectPath, ".prettierignore");
+    const prettierignorePath = path4.join(projectPath, ".prettierignore");
     const prettierignoreContent = "src/generated";
     fs3.writeFileSync(prettierignorePath, prettierignoreContent);
     console.log(chalk2.green(".prettierignore file created."));
-    const eslintrcPath = path3.join(projectPath, ".eslintrc.cjs");
+    const eslintrcPath = path4.join(projectPath, ".eslintrc.cjs");
     const eslintrcContent = `module.exports = {
   root: true,
   env: { browser: true, es2020: true },
@@ -257,18 +269,18 @@ async function createVitePlasmicApp(projectName, projectDir2) {
 };`;
     fs3.writeFileSync(eslintrcPath, eslintrcContent);
     console.log(chalk2.green(".eslintrc.cjs updated to extend Prettier."));
-    const packageJsonPath = path3.join(projectPath, "package.json");
+    const packageJsonPath = path4.join(projectPath, "package.json");
     const packageJson = JSON.parse(fs3.readFileSync(packageJsonPath, "utf8"));
     packageJson.scripts["plasmic"] = "plasmic sync";
     fs3.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
     console.log(chalk2.green(`Project ${projectName} created successfully.`));
-    const envFilePath = path3.join(projectPath, ".env");
+    const envFilePath = path4.join(projectPath, ".env");
     const envContent = `PLASMICID=YOURID
 PLASMICTOKEN=YOURTOKEN
 `;
     fs3.writeFileSync(envFilePath, envContent);
     console.log(chalk2.green(".env file created with placeholders for PLASMICID and PLASMICTOKEN."));
-    const gitignoreFilePath = path3.join(projectPath, ".gitignore");
+    const gitignoreFilePath = path4.join(projectPath, ".gitignore");
     let gitignoreContent = "";
     if (fs3.existsSync(gitignoreFilePath)) {
       gitignoreContent = fs3.readFileSync(gitignoreFilePath, "utf8");
@@ -299,12 +311,12 @@ PLASMICTOKEN=YOURTOKEN
 
 // src/commands/plasmicSync.ts
 import chalk3 from "chalk";
-import path4 from "path";
+import path5 from "path";
 import fs4 from "fs";
 async function plasmicSync(projectPath) {
   try {
-    const projectName = path4.basename(projectPath);
-    const plasmicJsonPath = path4.join(projectPath, "plasmic.json");
+    const projectName = path5.basename(projectPath);
+    const plasmicJsonPath = path5.join(projectPath, "plasmic.json");
     if (!fs4.existsSync(plasmicJsonPath)) {
       console.log(chalk3.red("Error: plasmic.json not found in the current directory."));
       console.log(chalk3.yellow("Cannot sync without a valid plasmic.json file."));
@@ -368,12 +380,12 @@ async function serveCreateReactAppBuild(projectPath) {
 
 // src/commands/plasmicFixImports.ts
 import chalk7 from "chalk";
-import path5 from "path";
+import path6 from "path";
 import fs5 from "fs";
 async function plasmicFixImports(projectPath) {
   try {
-    const projectName = path5.basename(projectPath);
-    const plasmicJsonPath = path5.join(projectPath, "plasmic.json");
+    const projectName = path6.basename(projectPath);
+    const plasmicJsonPath = path6.join(projectPath, "plasmic.json");
     if (!fs5.existsSync(plasmicJsonPath)) {
       console.log(chalk7.red("Error: plasmic.json not found in the current directory."));
       console.log(chalk7.yellow("Cannot sync without a valid plasmic.json file."));
@@ -411,11 +423,11 @@ function promptForProjectName() {
 
 // src/commands/generateSdk.ts
 import fs6 from "fs";
-import path6 from "path";
+import path7 from "path";
 import dotenv from "dotenv";
 import axios from "axios";
 function getBackendUrl(templateCwd2) {
-  const envPath = path6.join(templateCwd2, ".env");
+  const envPath = path7.join(templateCwd2, ".env");
   if (fs6.existsSync(envPath)) {
     const envConfig = dotenv.parse(fs6.readFileSync(envPath));
     console.log(envConfig);
@@ -429,7 +441,7 @@ function capitalize(str) {
 async function generateSDK(templateCwd2) {
   const API_BASE_URL = getBackendUrl(templateCwd2);
   const ENTITY_API_URL = `${API_BASE_URL}/sdk/entities`;
-  const SDK_DIR = path6.join(templateCwd2, "src", "generated", "sdk");
+  const SDK_DIR = path7.join(templateCwd2, "src", "generated", "sdk");
   try {
     const response = await axios.get(ENTITY_API_URL);
     const entities = response.data;
@@ -439,7 +451,7 @@ async function generateSDK(templateCwd2) {
     entities.forEach((entity) => {
       const { name, endpoints } = entity;
       const className = capitalize(name);
-      const filePath = path6.join(SDK_DIR, `${className.toLowerCase()}.ts`);
+      const filePath = path7.join(SDK_DIR, `${className.toLowerCase()}.ts`);
       const fileContent = `
 import axios, { AxiosResponse } from 'axios';
 
