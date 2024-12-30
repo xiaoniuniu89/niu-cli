@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 const cliRoot = path.join(__dirname, '..');
 
 export async function executeCommand(command: string, args: string[], cwd: string) {
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     // Only set preferLocal if it is 'plasmic'
     const execaOptions = (command === 'plasmic')
       ? {
