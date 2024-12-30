@@ -34,7 +34,7 @@ export async function runReplaceDefaults(templateCwd: string) {
     dry: false, // Set to true for a dry run without making changes
   };
 
-  const codemodPath = path.resolve(__dirname, '../codemods/replaceDefaults.js');
+  const codemodPath = path.resolve(__dirname, './codemods/replaceDefaults.js');
   await run(codemodPath, filesToTransform, jscodeshiftOptions);
 
   try {
@@ -107,7 +107,7 @@ export async function setupComponentFoldersAndRoutes(templateCwd: string) {
     dry: false,
   };
 
-  const codemodPath = path.resolve(__dirname, '../codemods/addRoutes.js');
+  const codemodPath = path.resolve(__dirname, './codemods/addRoutes.js');
   await run(codemodPath, [appTsxPath], { ...jscodeshiftOptions, pagesComponents });
 }
 
@@ -117,6 +117,6 @@ export async function runUpdateImportPathsCodemod(file: string) {
     dry: false,
   };
 
-  const codemodPath = path.resolve(__dirname, '../codemods/updatePlasmicImportPath.js');
+  const codemodPath = path.resolve(__dirname, './codemods/updatePlasmicImportPath.js');
   await run(codemodPath, [file], jscodeshiftOptions);
 }
