@@ -2,6 +2,8 @@
 
 import chalk from 'chalk';
 import dotenv from 'dotenv';
+import fs from 'fs-extra';
+import { homedir } from 'os';
 import { createViteApp } from './commands/createViteApp';
 import { createVitePlasmicApp } from './commands/createVitePlasmicApp';
 import { plasmicSync } from './commands/plasmicSync';
@@ -21,7 +23,9 @@ const templateCwd = process.cwd();
 const command = args[0];
 let projectNameArg = args[2];
 const dirArg = args.find(arg => arg.startsWith('dir='));
-const projectDir = dirArg ? dirArg.split('=')[1] : process.env.NIU_CLI_PROJECT_OUTPUT_DIR || '/home/niu/Stash';
+const projectDir = dirArg ? dirArg.split('=')[1] : process.env.NIU_CLI_PROJECT_OUTPUT_DIR || `${homedir()}/Stash`;
+
+fs.ensureDirSync(projectDir);
 
 let isVanilla = false;
 if (projectNameArg && projectNameArg.includes('vanilla=true')) {

@@ -1,15 +1,17 @@
 #!/usr/bin/env node
 
-// src/index.js
+// src/index.ts
 import chalk10 from "chalk";
 import dotenv2 from "dotenv";
+import fs7 from "fs-extra";
+import { homedir } from "os";
 
-// src/commands/createViteApp.js
+// src/commands/createViteApp.ts
 import chalk from "chalk";
 import fs from "fs";
 import path from "path";
 
-// src/utils/executeCommand.js
+// src/utils/executeCommand.ts
 import { execa } from "execa";
 async function executeCommand(command2, args2, cwd) {
   return new Promise((resolve, reject) => {
@@ -26,7 +28,7 @@ async function executeCommand(command2, args2, cwd) {
   });
 }
 
-// src/commands/createViteApp.js
+// src/commands/createViteApp.ts
 import "dotenv/config";
 async function createViteApp(projectName, projectDir2, options = {}) {
   const pckm = process.env.NIU_CLI_PCKM || "npm";
@@ -85,10 +87,10 @@ async function createViteApp(projectName, projectDir2, options = {}) {
   }
 }
 
-// src/commands/createVitePlasmicApp.js
+// src/commands/createVitePlasmicApp.ts
 import chalk2 from "chalk";
 
-// src/utils/promptForPlasmicId.js
+// src/utils/promptForPlasmicId.ts
 import readline from "readline";
 async function promptForProjectId() {
   const rl2 = readline.createInterface({
@@ -103,7 +105,7 @@ async function promptForProjectId() {
   });
 }
 
-// src/commands/runCodemods.js
+// src/commands/runCodemods.ts
 import { run } from "jscodeshift/src/Runner.js";
 import path2 from "path";
 import fs2 from "fs-extra";
@@ -112,8 +114,8 @@ var __filename = fileURLToPath(import.meta.url);
 var __dirname = path2.dirname(__filename);
 async function runReplaceDefaults(templateCwd2) {
   const filesToTransform = [
-    path2.resolve(templateCwd2, "src/App.jsx"),
-    path2.resolve(templateCwd2, "src/main.jsx")
+    path2.resolve(templateCwd2, "src/App.tsx"),
+    path2.resolve(templateCwd2, "src/main.tsx")
     // Add more files or directories as needed
   ];
   const jscodeshiftOptions = {
@@ -122,7 +124,7 @@ async function runReplaceDefaults(templateCwd2) {
     dry: false
     // Set to true for a dry run without making changes
   };
-  const codemodPath = path2.resolve(__dirname, "../codemods/replaceDefaults.js");
+  const codemodPath = path2.resolve(__dirname, "../codemods/replaceDefaults.ts");
   await run(codemodPath, filesToTransform, jscodeshiftOptions);
   try {
     fs2.unlinkSync(path2.resolve(templateCwd2, "src/App.css"));
@@ -151,12 +153,12 @@ async function setupComponentFoldersAndRoutes(templateCwd2) {
   for (const project of plasmicData.projects) {
     for (const component of project.components) {
       const srcDirConcat = path2.resolve(templateCwd2, srcDir);
-      const componentFile = path2.resolve(srcDirConcat, `${component.name}.jsx`);
+      const componentFile = path2.resolve(srcDirConcat, `${component.name}.tsx`);
       const componentDirPath = path2.resolve(srcDirConcat, component.name);
       if (!await fs2.pathExists(path2.resolve(srcDirConcat, component.name))) {
         await fs2.ensureDir(componentDirPath);
-        const newComponentFile = path2.resolve(componentDirPath, `${component.name}.jsx`);
-        const indexFile = path2.resolve(componentDirPath, "index.js");
+        const newComponentFile = path2.resolve(componentDirPath, `${component.name}.tsx`);
+        const indexFile = path2.resolve(componentDirPath, "index.ts");
         if (await fs2.pathExists(componentFile)) {
           await fs2.move(componentFile, newComponentFile);
         }
@@ -176,12 +178,12 @@ async function setupComponentFoldersAndRoutes(templateCwd2) {
     console.log("No page components found in plasmic.json.");
     return;
   }
-  const appTsxPath = path2.resolve(templateCwd2, "src/App.jsx");
+  const appTsxPath = path2.resolve(templateCwd2, "src/App.tsx");
   const jscodeshiftOptions = {
     parser: "tsx",
     dry: false
   };
-  const codemodPath = path2.resolve(__dirname, "../codemods/addRoutes.js");
+  const codemodPath = path2.resolve(__dirname, "../codemods/addRoutes.ts");
   await run(codemodPath, [appTsxPath], { ...jscodeshiftOptions, pagesComponents });
 }
 async function runUpdateImportPathsCodemod(file) {
@@ -189,11 +191,11 @@ async function runUpdateImportPathsCodemod(file) {
     parser: "tsx",
     dry: false
   };
-  const codemodPath = path2.resolve(__dirname, "../codemods/updatePlasmicImportPath.js");
+  const codemodPath = path2.resolve(__dirname, "../codemods/updatePlasmicImportPath.ts");
   await run(codemodPath, [file], jscodeshiftOptions);
 }
 
-// src/commands/createVitePlasmicApp.js
+// src/commands/createVitePlasmicApp.ts
 import fs3 from "fs";
 import path3 from "path";
 import "dotenv/config";
@@ -295,7 +297,7 @@ PLASMICTOKEN=YOURTOKEN
   }
 }
 
-// src/commands/plasmicSync.js
+// src/commands/plasmicSync.ts
 import chalk3 from "chalk";
 import path4 from "path";
 import fs4 from "fs";
@@ -328,7 +330,7 @@ async function plasmicSync(projectPath) {
   }
 }
 
-// src/commands/plasmicAuth.js
+// src/commands/plasmicAuth.ts
 import chalk4 from "chalk";
 async function plasmicAuth() {
   try {
@@ -340,7 +342,7 @@ async function plasmicAuth() {
   }
 }
 
-// src/commands/plasmicInit.js
+// src/commands/plasmicInit.ts
 import chalk5 from "chalk";
 async function plasmicInit(projectPath) {
   try {
@@ -352,7 +354,7 @@ async function plasmicInit(projectPath) {
   }
 }
 
-// src/commands/serveCreateReactAppBuild.js
+// src/commands/serveCreateReactAppBuild.ts
 import chalk6 from "chalk";
 async function serveCreateReactAppBuild(projectPath) {
   try {
@@ -364,7 +366,7 @@ async function serveCreateReactAppBuild(projectPath) {
   }
 }
 
-// src/commands/plasmicFixImports.js
+// src/commands/plasmicFixImports.ts
 import chalk7 from "chalk";
 import path5 from "path";
 import fs5 from "fs";
@@ -386,7 +388,7 @@ async function plasmicFixImports(projectPath) {
   }
 }
 
-// src/utils/promptForProjectName.js
+// src/utils/promptForProjectName.ts
 import readline2 from "readline";
 import chalk8 from "chalk";
 var rl = readline2.createInterface({
@@ -407,7 +409,7 @@ function promptForProjectName() {
   });
 }
 
-// src/commands/generateSdk.js
+// src/commands/generateSdk.ts
 import fs6 from "fs";
 import path6 from "path";
 import dotenv from "dotenv";
@@ -437,7 +439,7 @@ async function generateSDK(templateCwd2) {
     entities.forEach((entity) => {
       const { name, endpoints } = entity;
       const className = capitalize(name);
-      const filePath = path6.join(SDK_DIR, `${className.toLowerCase()}.js`);
+      const filePath = path6.join(SDK_DIR, `${className.toLowerCase()}.ts`);
       const fileContent = `
 import axios, { AxiosResponse } from 'axios';
 
@@ -510,7 +512,7 @@ export interface ${className} {
   }
 }
 
-// src/commands/stashAndPull.js
+// src/commands/stashAndPull.ts
 import chalk9 from "chalk";
 async function stashAndPull(projectPath) {
   try {
@@ -524,14 +526,15 @@ async function stashAndPull(projectPath) {
   }
 }
 
-// src/index.js
+// src/index.ts
 dotenv2.config();
 var args = process.argv.slice(2);
 var templateCwd = process.cwd();
 var command = args[0];
 var projectNameArg = args[2];
 var dirArg = args.find((arg) => arg.startsWith("dir="));
-var projectDir = dirArg ? dirArg.split("=")[1] : process.env.NIU_CLI_PROJECT_OUTPUT_DIR || "/home/niu/Stash";
+var projectDir = dirArg ? dirArg.split("=")[1] : process.env.NIU_CLI_PROJECT_OUTPUT_DIR || `${homedir()}/Stash`;
+fs7.ensureDirSync(projectDir);
 var isVanilla = false;
 if (projectNameArg && projectNameArg.includes("vanilla=true")) {
   isVanilla = true;
