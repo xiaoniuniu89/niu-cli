@@ -11,6 +11,9 @@
     "start": "tsup src/index.ts --watch",
     "postbuild": "find dist -type f -name '*.js' -exec sed -i 's/\\.ts/\\.js/g' {} +"
   },
+  "files": [
+    "dist"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",
