@@ -19,7 +19,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@plasmicapp/cli": "^0.1.330",
+    "@plasmicapp/cli": "^0.1.342",
     "@types/chalk": "^2.2.0",
     "@types/fs-extra": "^11.0.4",
     "@types/jscodeshift": "^0.11.11",

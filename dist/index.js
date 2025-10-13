@@ -57,8 +57,22 @@ async function createViteApp(projectName, projectDir2, options = {}) {
     const npmrcPath = path2.join(projectPath, ".npmrc");
     fs.writeFileSync(npmrcPath, npmrcContent);
     console.log(chalk.green(".npmrc file created."));
-    const initialDependencies = options.vanilla ? [] : ["react", "react-dom", "react-router-dom"];
-    await executeCommand(pckm, ["install", ...initialDependencies], projectPath);
+    if (!options.vanilla) {
+      console.log(chalk.green("Pinning React 18 and React Router DOM v6 in package.json..."));
+      const pkgPath = path2.join(projectPath, "package.json");
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+      pkg.dependencies = pkg.dependencies || {};
+      pkg.devDependencies = pkg.devDependencies || {};
+      pkg.dependencies["react"] = "^18";
+      pkg.dependencies["react-dom"] = "^18";
+      pkg.dependencies["react-router-dom"] = "^6";
+      pkg.devDependencies["@types/react"] = "^18";
+      pkg.devDependencies["@types/react-dom"] = "^18";
+      if (pkg.dependencies["@types/react"]) delete pkg.dependencies["@types/react"];
+      if (pkg.dependencies["@types/react-dom"]) delete pkg.dependencies["@types/react-dom"];
+      fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+    }
+    await executeCommand(pckm, ["install"], projectPath);
     console.log(chalk.green("Dependencies installed successfully."));
     console.log(chalk.green("Installing dev dependencies"));
     const devDependencies = ["prettier", "eslint-config-prettier"];
@@ -210,8 +224,21 @@ async function createVitePlasmicApp(projectName, projectDir2) {
     const npmrcPath = path4.join(projectPath, ".npmrc");
     fs3.writeFileSync(npmrcPath, npmrcContent);
     console.log(chalk2.green(".npmrc file created."));
+    console.log(chalk2.green("Pinning React 18 and React Router DOM v6 in package.json..."));
+    const pkgPath = path4.join(projectPath, "package.json");
+    const pkg = JSON.parse(fs3.readFileSync(pkgPath, "utf8"));
+    pkg.dependencies = pkg.dependencies || {};
+    pkg.devDependencies = pkg.devDependencies || {};
+    pkg.dependencies["react"] = "^18";
+    pkg.dependencies["react-dom"] = "^18";
+    pkg.dependencies["react-router-dom"] = "^6";
+    pkg.devDependencies["@types/react"] = "^18";
+    pkg.devDependencies["@types/react-dom"] = "^18";
+    if (pkg.dependencies["@types/react"]) delete pkg.dependencies["@types/react"];
+    if (pkg.dependencies["@types/react-dom"]) delete pkg.dependencies["@types/react-dom"];
+    fs3.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
     console.log(chalk2.green("Installing dependencies"));
-    const dependencies = ["@plasmicapp/loader", "react-router-dom", "@plasmicapp/react-web"];
+    const dependencies = ["@plasmicapp/loader", "@plasmicapp/react-web"];
     await executeCommand(pckm, ["install"], projectPath);
     console.log(chalk2.green("Installing @plasmicapp dependencies"));
     await executeCommand(pckm, ["install", ...dependencies, "--ignore-scripts"], projectPath);

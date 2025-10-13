@@ -33,15 +33,34 @@ export async function createVitePlasmicApp(projectName: string, projectDir: stri
     // Initialize a new Vite project in the project directory with react-swc-ts template
     await executeCommand('npm', ['init', 'vite@latest', '.', '--', '--template', 'react-swc-ts', '--name', viteProjectName], projectPath);
 
-    console.log(chalk.green('Vite project with plasmic initialized successfully with react-swc-ts template.'));
+  console.log(chalk.green('Vite project with plasmic initialized successfully with react-swc-ts template.'));
     const npmrcContent = `registry=https://registry.npmjs.org/`
     const npmrcPath = path.join(projectPath, '.npmrc');
     fs.writeFileSync(npmrcPath, npmrcContent);
     console.log(chalk.green('.npmrc file created.'));
-    console.log(chalk.green('Installing dependencies'));
+    
+  // Ensure React 18 and compatible React Router DOM (v6) are used before installing
+  console.log(chalk.green('Pinning React 18 and React Router DOM v6 in package.json...'));
+  const pkgPath = path.join(projectPath, 'package.json');
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8')) as any;
+  pkg.dependencies = pkg.dependencies || {};
+  pkg.devDependencies = pkg.devDependencies || {};
+  // Pin runtime deps
+  pkg.dependencies['react'] = '^18';
+  pkg.dependencies['react-dom'] = '^18';
+  pkg.dependencies['react-router-dom'] = '^6';
+  // Pin types for TS template (keep in dev deps)
+  pkg.devDependencies['@types/react'] = '^18';
+  pkg.devDependencies['@types/react-dom'] = '^18';
+  // Ensure they are not duplicated in wrong section
+  if (pkg.dependencies['@types/react']) delete pkg.dependencies['@types/react'];
+  if (pkg.dependencies['@types/react-dom']) delete pkg.dependencies['@types/react-dom'];
+  fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
 
-    // Install additional dependencies including @plasmicapp/loader, @plasmicapp/cli, and react-router-dom
-    const dependencies = ['@plasmicapp/loader', 'react-router-dom', '@plasmicapp/react-web'];
+  console.log(chalk.green('Installing dependencies'));
+
+  // Install additional dependencies including @plasmicapp/loader and @plasmicapp/react-web
+  const dependencies = ['@plasmicapp/loader', '@plasmicapp/react-web'];
     await executeCommand(pckm , ['install'], projectPath);
 
     console.log(chalk.green('Installing @plasmicapp dependencies'));
